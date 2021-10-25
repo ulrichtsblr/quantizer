@@ -1,0 +1,9 @@
+[package]
+name = "quantizer"
+version = "0.1.0"
+authors = ["ulrichtsblr <ulrichts.blr@protonmail.com>"]
+edition = "2018"
+description = "quantizer"
+license = "MIT"
+
+[dependencies]
