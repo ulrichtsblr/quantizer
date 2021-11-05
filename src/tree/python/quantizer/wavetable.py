@@ -1,93 +1,91 @@
-from quantizer.utils import minmaxscale_i16, midi2freq
+from quantizer.kernel.kontext import kntxt
+from quantizer.kernel.util import Array, Integer, Scalar, midi2freq, normalize
+from abc import ABC, abstractmethod
 import numpy as np
-from scipy.io import wavfile
-from typing import Callable
+
+np.random.seed(0)
 
 
-class Wavetable:
+class Wavetable(ABC):
 
-    def __init__(self, fs: int = 44100, window: int = 1024, c: int = 60):
-        self.fs = fs
-        self.window = window
-        self.c = c
-        self.x = np.linspace(0, 2 * np.pi, self.window)
-        self.y = None
+    @staticmethod
+    @abstractmethod
+    def fn(x: Array) -> Array:
+        raise RuntimeError
 
-    def get_fs(self):
-        return self.fs
+    def render(self, x: Array) -> Array:
+        return self.fn(((x + np.pi) % (2 * np.pi)) - np.pi)
 
-    def osc(self, f: Callable):
-        self.y = f(self.x)
-
-    def read(self, f: float, nsamples: int) -> np.ndarray:
-        phase_idx = (
-            np.round(self.window * f * np.arange(0, nsamples) / self.fs) % self.window
-        ).astype(int)
-        return self.y[phase_idx]
-
-    def write(self, file_name: str = "wavetable.wav", segmented: bool = False):
-
-        def segment(y: np.ndarray) -> np.ndarray:
-            f = midi2freq(m=self.c)
-            t = np.round((1 / f) * self.fs).astype(int)
-            segment_idx = np.round(np.linspace(0, self.window - 1, t)).astype(int)
-            return y[segment_idx]
-
-        if segmented:
-            wavfile.write(file_name, self.fs, minmaxscale_i16(stream=segment(self.y)))
-        else:
-            wavfile.write(file_name, self.fs, minmaxscale_i16(stream=self.y))
+    def discretize(
+        self,
+        f: Scalar = midi2freq(60),
+        fs: Integer = None,
+    ) -> Array:
+        if not fs:
+            fs = kntxt().fs
+        window = round(fs / f)
+        x = np.linspace(-np.pi, np.pi, window)
+        y = self.fn(x)
+        return y
 
 
 class Sine(Wavetable):
 
-    def __init__(self):
-        super().__init__()
-        super().osc(lambda x: np.sin(x))
-
-
-class RectifiedSine(Wavetable):
-
-    def __init__(self):
-        super().__init__()
-        super().osc(lambda x: 2 * abs(np.sin(x)) - 1)
-
-
-class Saw(Wavetable):
-
-    def __init__(self):
-        super().__init__()
-        super().osc(lambda x: np.linspace(-1, 1, len(x)))
+    @staticmethod
+    def fn(x: Array) -> Array:
+        y = np.sin(x)
+        return normalize(y)
 
 
 class Square(Wavetable):
 
-    def __init__(self):
-        super().__init__()
-        super().osc(
-            lambda x:
-            np.concatenate(
-                [np.ones(int(len(x) / 2)), -1 * np.ones(int(len(x) / 2))],
-                axis=None
-            )
-        )
+    @staticmethod
+    def fn(x: Array) -> Array:
+        y1 = np.where(x < 0, -1, 0)
+        y2 = np.where(x > 0, 1, 0)
+        y = y1 + y2
+        return normalize(y)
+
+
+class Saw(Wavetable):
+
+    @staticmethod
+    def fn(x: Array) -> Array:
+        y = x
+        return normalize(y)
 
 
 class Triangle(Wavetable):
 
-    def __init__(self):
-        super().__init__()
-        super().osc(
-            lambda x:
-            np.concatenate(
-                [np.linspace(-1, 1, int(len(x) / 2)), np.linspace(1, -1, int(len(x) / 2))],
-                axis=None
-            )
+    @staticmethod
+    def fn(x: Array) -> Array:
+        y1 = np.where(
+            x < (-np.pi / 2),
+            (-2 / np.pi) * x - 2,
+            0
         )
+        y2 = np.where(
+            (x >= (-np.pi / 2)) & (x <= (np.pi / 2)),
+            (2 / np.pi) * x,
+            0
+        )
+        y3 = np.where(
+            x > (np.pi / 2),
+            (-2 / np.pi) * x + 2,
+            0
+        )
+        y = y1 + y2 + y3
+        return normalize(y)
 
 
-class NoiseUniform(Wavetable):
+class Noise(Wavetable):
 
-    def __init__(self):
-        super().__init__()
-        super().osc(lambda x: np.random.uniform(-1, 1, len(x)))
+    @staticmethod
+    def fn(x: Array) -> Array:
+        y = np.random.uniform(-1, 1, len(x))
+        return normalize(y)
+
+
+Sin = Sine
+Squ = Square
+Tri = Triangle
