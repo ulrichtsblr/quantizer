@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="quantizer",
-    version="0.2.0",
+    version="0.2.1",
     author="BLR Ulrichts",
     author_email="ulrichts.blr@protonmail.com",
     description="an object-oriented audio synthesis framework",
@@ -21,11 +21,11 @@ setuptools.setup(
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.7",
     install_requires=[
-       'numpy>=1.15',
-       'scipy>=1.2',
        'matplotlib>=3.0',
-       'pyaudio>=0.2',
-       'pyyaml>=5.1',
        'numba>=0.42'
+       'numpy>=1.15',
+       'pyyaml>=5.1',
+       'scipy>=1.2',
+       'sounddevice>=0.4',
     ]
 )

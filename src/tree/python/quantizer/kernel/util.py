@@ -1,6 +1,6 @@
 import numpy as np
-import pyaudio
 from scipy.io import wavfile
+import sounddevice as sd
 from typing import Callable, Union
 from warnings import warn
 
@@ -81,18 +81,9 @@ def broadcast(y: Array, fs: Integer = None) -> None:
             f"fs = {fs}",
             RuntimeWarning
         )
-    data = y.astype(np.float32).tostring()
-    p = pyaudio.PyAudio()
-    s = p.open(
-        format=pyaudio.paFloat32,
-        channels=1,
-        rate=fs,
-        output=True,
-    )
-    s.write(data)
-    s.stop_stream()
-    s.close()
-    p.terminate()
+    sd.play(y, fs)
+    sd.wait()
+    sd.stop()
 
 
 def mag2db(mag: Float) -> Float:
