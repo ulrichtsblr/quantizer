@@ -87,4 +87,21 @@ class Stream(Waveform):
 
 
 class Controller(Waveform):
-    pass
+
+    @classmethod
+    def cast(cls, arg):
+        """
+        :type arg: Scalar, Array, Waveform
+        :rtype Controller
+        """
+        if isinstance(arg, Scalar):
+            ndarray = np.zeros(len(qkc()))
+            ndarray.fill(arg)
+            return Controller(ndarray)
+        elif isinstance(arg, Array):
+            return Controller(arg)
+        else:
+            try:
+                return Controller(arg.get_ndarray())
+            except AttributeError:
+                raise RuntimeError

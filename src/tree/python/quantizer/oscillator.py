@@ -1,7 +1,7 @@
 from quantizer.kernel.util import Array, Scalar, qkc
 from quantizer.kernel.waveform import Controller
 from quantizer.controller import (
-    BipolarController, StaticController, cast
+    BipolarController, StaticController
 )
 from quantizer.wavetable import Wavetable, Sine
 import numpy as np
@@ -26,10 +26,10 @@ class Oscillator(BipolarController):
         if not a:
             a = qkc().a
         wt = wt
-        dt = cast(dt)
-        f = cast(f)
-        p = cast(p)
-        a = cast(a)
+        dt = Controller.cast(dt)
+        f = Controller.cast(f)
+        p = Controller.cast(p)
+        a = Controller.cast(a)
         phase_derivative = (
             2 * np.pi
             * f.get_ndarray()
