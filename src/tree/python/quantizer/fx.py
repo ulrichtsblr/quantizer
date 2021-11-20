@@ -1,4 +1,5 @@
-from quantizer.kernel.util import qkc
+from quantizer.kernel.util import db2mag, qkc
+from quantizer.kernel.waveform import Controller
 from quantizer.stream import Stream
 from abc import ABC, abstractmethod
 from numba import jit
@@ -8,7 +9,11 @@ from scipy.signal import fftconvolve, butter
 
 class FX(ABC):
     @abstractmethod
-    def patch(self, stream: Stream) -> Stream:
+    def patch(self, stream):
+        """
+        :type stream: Waveform
+        :rtype: Stream
+        """
         raise RuntimeError
 
 
@@ -38,6 +43,29 @@ class TemporalMonoFX(MonoFX, TemporalFX):
 
 class SpectralMonoFX(MonoFX, SpectralFX):
     pass
+
+
+class Waveshaper(MonoFX):
+    def __init__(self, gain=0, mode="tanh"):
+        self.gain = Controller.cast(gain)
+        self.mode = mode
+
+    def patch(self, stream):
+        s = db2mag(self.gain.get_ndarray()) * stream.get_ndarray()
+        if self.mode == "erf":
+            s = np.erf(s)
+        elif self.mode == "tanh":
+            s = np.tanh(s)
+        elif self.mode == "arctan":
+            s = 2 / np.pi * np.arctan(np.pi / 2 * s)
+        elif self.mode == "clip":
+            s1 = np.where(s < -1, -1, 0)
+            s2 = np.where((s >= -1) & (s <= 1), s, 0)
+            s3 = np.where(s > 1, 1, 0)
+            s = s1 + s2 + s3
+        else:
+            raise RuntimeError
+        return Stream(s)
 
 
 class SincFilter(MonoFX):
