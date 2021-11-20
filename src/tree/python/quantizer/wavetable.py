@@ -1,5 +1,6 @@
-from quantizer.kernel.kontext import kntxt
-from quantizer.kernel.util import Array, Integer, Scalar, midi2freq, normalize
+from quantizer.kernel.util import (
+    Array, Integer, Scalar, midi2freq, normalize, qkc
+)
 from abc import ABC, abstractmethod
 import numpy as np
 
@@ -22,7 +23,7 @@ class Wavetable(ABC):
         fs: Integer = None,
     ) -> Array:
         if not fs:
-            fs = kntxt().fs
+            fs = qkc().fs
         window = round(fs / f)
         x = np.linspace(-np.pi, np.pi, window)
         y = self.fn(x)

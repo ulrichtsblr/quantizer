@@ -1,10 +1,10 @@
-from quantizer.kernel.kontext import (
-    kntxt, Context, Session, Experiment
+from quantizer.kernel.context import (
+    Context, Session, Experiment
 )
 from quantizer.kernel.util import (
     PI, beats2samples, samples2beats, bounce, broadcast, mag2db, db2mag,
     midi2freq, midi2mag, minmaxscale, minmaxscale_i16, normalize, spn2midi,
-    transpose
+    transpose, qkc
 )
 from quantizer.kernel.waveform import (
     Waveform, Stream, Controller
@@ -32,13 +32,13 @@ from quantizer.wavetable import (
     Sine, Square, Saw, Triangle, Noise, Sin, Squ, Tri
 )
 
-kernel_kontext = [
-    "kntxt", "Context", "Session", "Experiment"
+kernel_context = [
+    "Context", "Session", "Experiment"
 ]
 kernel_util = [
     "PI", "beats2samples", "samples2beats", "bounce", "broadcast", "mag2db",
     "db2mag", "midi2freq", "midi2mag", "minmaxscale", "minmaxscale_i16",
-    "normalize", "spn2midi", "transpose"
+    "normalize", "spn2midi", "transpose", "qkc"
 ]
 kernel_waveform = [
     "Waveform", "Stream", "Controller"
@@ -67,7 +67,7 @@ wavetable = [
 ]
 
 __all__ = (
-    kernel_kontext +
+    kernel_context +
     kernel_util +
     kernel_waveform +
     controller +

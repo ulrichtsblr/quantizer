@@ -1,3 +1,4 @@
+import __main__
 import numpy as np
 from scipy.io import wavfile
 import sounddevice as sd
@@ -191,3 +192,7 @@ def transpose(
     """
     c = 1200 * oc + 100 * st + 1 * ct
     return f * 2 ** (c / 1200)
+
+
+def qkc():
+    return getattr(__main__, "QUANTIZER_KERNEL_CONTEXT")

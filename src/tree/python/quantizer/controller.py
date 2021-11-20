@@ -1,5 +1,5 @@
-from quantizer.kernel.kontext import kntxt, Controller
-from quantizer.kernel.util import Array, Integer, Scalar
+from quantizer.kernel.context import Controller
+from quantizer.kernel.util import Array, Integer, Scalar, qkc
 import numpy as np
 
 
@@ -18,7 +18,7 @@ class StaticController(Controller):
         nsamples: Integer = None,
     ):
         if not nsamples:
-            nsamples = len(kntxt())
+            nsamples = len(qkc())
         ndarray = np.zeros(nsamples)
         ndarray.fill(scalar)
         super().__init__(ndarray)

@@ -1,4 +1,4 @@
-from quantizer.kernel.kontext import kntxt
+from quantizer.kernel.util import qkc
 from quantizer.stream import Stream
 from abc import ABC, abstractmethod
 from numba import jit
@@ -42,8 +42,8 @@ class SpectralMonoFX(MonoFX, SpectralFX):
 
 class SincFilter(MonoFX):
     def __init__(self, f=440, bandwidth=440, mode="lp"):
-        self.fc = f / kntxt().fs * 2
-        self.bw = bandwidth / kntxt().fs
+        self.fc = f / qkc().fs * 2
+        self.bw = bandwidth / qkc().fs
         self.m = int(np.round(4 / self.bw))
         if self.m % 2:
             self.n = self.m
@@ -67,7 +67,7 @@ class SincFilter(MonoFX):
 
 class ButterworthFilter(MonoFX):
     def __init__(self, f=440, order=4):
-        fc = f / kntxt().fs * 2
+        fc = f / qkc().fs * 2
         b, a = butter(order, fc)
         self.b = b
         self.a = a

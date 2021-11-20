@@ -1,5 +1,4 @@
-from quantizer.kernel.kontext import kntxt
-from quantizer.kernel.util import Array, Callable, Dict
+from quantizer.kernel.util import Array, Callable, Dict, qkc
 from quantizer.controller import UnipolarController
 from quantizer.sequencer import Event, Pattern
 from numba import jit
@@ -23,14 +22,14 @@ class Contour:
 
     def render(self, e: Event) -> Array:
         nsamples = e.get_nsamples()
-        h = self._segment(self.head_t, self.head_a, kntxt().fs)
+        h = self._segment(self.head_t, self.head_a, qkc().fs)
         if nsamples <= len(h):
             hs = h[:nsamples]
         else:
             s = np.zeros(nsamples - len(h))
             s.fill(self.sustain(e))
             hs = np.concatenate([h, s])
-        t = self._segment(self.tail_t, self.tail_a, kntxt().fs)
+        t = self._segment(self.tail_t, self.tail_a, qkc().fs)
         hst = np.concatenate([hs, t])
         return hst
 
@@ -61,7 +60,7 @@ class Envelope(UnipolarController):
         self.contour = contour
         self.reactive = reactive
         self.lazy = lazy
-        self._ndarray = np.zeros(len(kntxt()))
+        self._ndarray = np.zeros(len(qkc()))
         val = 0
         idx = 0
         for e in self.pattern.get_events():

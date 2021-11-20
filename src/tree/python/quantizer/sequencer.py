@@ -1,7 +1,6 @@
-from quantizer.kernel.kontext import kntxt
 from quantizer.kernel.util import (
     Boolean, Scalar, Sequence, Integer, String, List, beats2samples, bounce,
-    db2mag, midi2freq, midi2mag, minmaxscale_i16, transpose
+    db2mag, midi2freq, midi2mag, minmaxscale_i16, transpose, qkc
 )
 from quantizer.kernel.waveform import Stream
 from copy import deepcopy
@@ -14,8 +13,8 @@ class Event:
 
     nsamples_default = beats2samples(
         beats=1.0,
-        bpm=kntxt().bpm,
-        fs=kntxt().fs,
+        bpm=qkc().bpm,
+        fs=qkc().fs,
     )
     f_default = midi2freq(36)
 
@@ -142,8 +141,8 @@ class Sequencer:
                 idle=idle,
                 nsamples=beats2samples(
                     beats=beats,
-                    bpm=kntxt().bpm,
-                    fs=kntxt().fs,
+                    bpm=qkc().bpm,
+                    fs=qkc().fs,
                 ),
                 f=midi2freq(f),
                 a=midi2mag(a),
@@ -173,7 +172,7 @@ class Sequencer:
         return mix
 
     def export(self, file_path: str = "sequencer.wav"):
-        bounce(minmaxscale_i16(self.mix()), file_path, kntxt().fs)
+        bounce(minmaxscale_i16(self.mix()), file_path, qkc().fs)
 
     def load_yaml(self, file_path: str):
         manuscript = yaml.load(open(file_path, 'r'), Loader=yaml.BaseLoader)

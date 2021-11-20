@@ -74,14 +74,18 @@ class Session:
             fork: Boolean = True,
     ):
         if fork:
-            setattr(__main__, "KNTXT", Context(beats, bpm, fs, nsamples))
+            setattr(
+                __main__,
+                "QUANTIZER_KERNEL_CONTEXT",
+                Context(beats, bpm, fs, nsamples),
+            )
         else:
             try:
-                getattr(__main__, "KNTXT")
+                getattr(__main__, "QUANTIZER_KERNEL_CONTEXT")
             except AttributeError:
                 setattr(
                     __main__,
-                    "KNTXT",
+                    "QUANTIZER_KERNEL_CONTEXT",
                     Context(beats, bpm, fs, nsamples),
                 )
 
@@ -92,10 +96,6 @@ class Session:
 
 class Experiment(ABC):
     pass
-
-
-def kntxt():
-    return getattr(__main__, "KNTXT")
 
 
 Session(fork=False)

@@ -1,4 +1,6 @@
-from quantizer.kernel.util import Array, Integer, Scalar
+from quantizer.kernel.util import (
+    Array, Integer, Scalar, String, broadcast, bounce, qkc
+)
 import numpy as np
 
 
@@ -51,6 +53,12 @@ class Waveform:
                 )
         else:
             raise RuntimeError
+
+    def broadcast(self) -> None:
+        broadcast(self._ndarray, fs=qkc().fs)
+
+    def bounce(self, file_path: String = "waveform.wav") -> None:
+        bounce(self._ndarray, file_path=file_path, fs=qkc().fs)
 
     def __add__(self, other):
         return self.add(other)
